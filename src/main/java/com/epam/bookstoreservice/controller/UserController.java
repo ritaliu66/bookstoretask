@@ -1,10 +1,11 @@
 package com.epam.bookstoreservice.controller;
 
 import com.epam.bookstoreservice.dto.request.UserRequestDTO;
-import com.epam.bookstoreservice.dto.response.UserResponseDTO;
+import com.epam.bookstoreservice.hateoas.assembler.UserResponseDTOAssembler;
+import com.epam.bookstoreservice.hateoas.model.UserModel;
 import com.epam.bookstoreservice.service.UserService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,22 +13,26 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 /**
  * the controller for user service
  */
 @RestController
 @RequestMapping("/v1/user")
-@Api("user")
 @AllArgsConstructor
+@Tag(name = "user")
 public class UserController {
 
-    private UserService userService;
+    private final UserService userService;
+
+    private final UserResponseDTOAssembler userResponseDTOAssembler;
 
     @PostMapping("/register")
-    @ApiOperation("user register")
-    public ResponseEntity<UserResponseDTO> registerAUser(UserRequestDTO userRequestDto){
+    @Operation(description  = "user register")
+    public ResponseEntity<UserModel> registerAUser(UserRequestDTO userRequestDto){
         return ResponseEntity
-                .status(HttpStatus.OK).body(userService.registerAUser(userRequestDto));
+                .status(HttpStatus.OK)
+                .body(userResponseDTOAssembler.toModel(userService.registerAUser(userRequestDto),userRequestDto));
     }
 
 }

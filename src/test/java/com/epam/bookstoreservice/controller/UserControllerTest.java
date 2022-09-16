@@ -3,6 +3,8 @@ package com.epam.bookstoreservice.controller;
 import com.epam.bookstoreservice.BookstoreServiceApplication;
 import com.epam.bookstoreservice.dto.request.UserRequestDTO;
 import com.epam.bookstoreservice.dto.response.UserResponseDTO;
+import com.epam.bookstoreservice.hateoas.assembler.UserResponseDTOAssembler;
+import com.epam.bookstoreservice.hateoas.model.UserModel;
 import com.epam.bookstoreservice.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+
+import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 
@@ -33,9 +38,12 @@ class UserControllerTest {
 
     private final static String PHONE_NUMBER = "111";
 
+    @Autowired
+    private UserResponseDTOAssembler userResponseDTOAssembler;
+
     @BeforeEach
     public void init() {
-        userController = new UserController(userService);
+        userController = new UserController(userService,userResponseDTOAssembler);
     }
 
     @Test
@@ -45,8 +53,8 @@ class UserControllerTest {
 
         Mockito.when(userService.registerAUser(any())).thenReturn( userResponseDTO);
 
-        ResponseEntity<UserResponseDTO> result = userController.registerAUser(userRequestDto);
-        Assertions.assertNotNull(result.getBody());
+        ResponseEntity<UserModel> result = userController.registerAUser(userRequestDto);
+        Assertions.assertNotNull(Objects.requireNonNull(result.getBody()).getContent());
     }
 
 }
